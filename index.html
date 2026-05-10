@@ -497,7 +497,50 @@ textarea{resize:vertical;min-height:70px}
 [data-body-dash="neon"] .slider-btn:hover{box-shadow:0 0 14px var(--accent);border-color:var(--accent)}
 [data-body-dash="neon"] .modal{border-color:rgba(124,106,255,.35);box-shadow:0 0 0 1px rgba(124,106,255,.12),0 28px 80px rgba(0,0,0,.8),0 0 60px rgba(124,106,255,.1);border-radius:18px;background:rgba(10,8,18,.97)}
 [data-body-dash="neon"] .modal-title{color:var(--accent);text-shadow:0 0 14px rgba(124,106,255,.5);border-bottom:1px solid rgba(124,106,255,.16);padding-bottom:10px}
-[data-body-dash="neon"] .todo-item{background:rgba(14,12,22,.85);border-bottom:1px solid rgba(124,106,255,.1)}
+[data-body-dash="neon"] .todo-item{
+  background:rgba(14,12,22,.85);
+  border-bottom:1px solid rgba(124,106,255,.1);
+  box-shadow:inset 0 0 20px rgba(124,106,255,.04);
+  transition:box-shadow .2s,border-color .2s;
+}
+[data-body-dash="neon"] .todo-item:hover{
+  border-bottom-color:rgba(124,106,255,.3);
+  box-shadow:inset 0 0 28px rgba(124,106,255,.1),0 0 12px rgba(124,106,255,.08);
+}
+[data-body-dash="neon"] .todo-check:checked+.todo-body .todo-text{
+  text-shadow:none;
+}
+[data-body-dash="neon"] .todo-check{
+  accent-color:var(--accent);
+  filter:drop-shadow(0 0 4px var(--accent));
+}
+[data-body-dash="neon"] .priority-high{
+  text-shadow:0 0 8px var(--coral);
+  filter:brightness(1.2);
+}
+[data-body-dash="neon"] .todo-text:not(.done){
+  text-shadow:0 0 12px rgba(232,232,255,.2);
+}
+[data-body-dash="neon"] tr:hover td{
+  background:rgba(124,106,255,.05);
+}
+[data-body-dash="neon"] table tr{
+  transition:background .15s;
+}
+[data-body-dash="neon"] table thead th{
+  text-shadow:0 0 10px rgba(124,106,255,.4);
+  color:var(--accent) !important;
+}
+[data-body-dash="neon"] table td span[style*="cursor:pointer"]{
+  transition:text-shadow .2s;
+}
+[data-body-dash="neon"] table td span[style*="cursor:pointer"]:hover{
+  text-shadow:0 0 12px var(--accent);
+  color:var(--accent);
+}
+[data-body-dash="neon"] .routine-row-done td{
+  opacity:.6;
+}
 [data-body-dash="neon"] .notification{border-color:var(--accent);box-shadow:0 0 20px rgba(124,106,255,.4);border-radius:14px}
 [data-body-dash="neon"] table tr:hover td{background:rgba(124,106,255,.05)}
 [data-body-dash="neon"] .icon-btn:hover{background:rgba(124,106,255,.15);box-shadow:0 0 10px rgba(124,106,255,.3)}
@@ -585,10 +628,141 @@ textarea{resize:vertical;min-height:70px}
   .grid2{grid-template-columns:1fr}
 }
 </style>
+
+<!-- ── AUTH OVERLAY STYLES ──────────────────────────────────────────────── -->
+<style>
+#auth-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;
+}
+#auth-overlay.hidden{display:none}
+.auth-box{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:20px;padding:36px 32px;width:380px;max-width:95vw;
+  text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.4);
+}
+.auth-logo{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:4px}
+.auth-sub{font-size:12px;color:var(--muted);margin-bottom:28px}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:20px 0;color:var(--muted2);font-size:11px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-mode-btn{background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif;padding:0}
+.gmail-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:12px 0;border-radius:10px;
+  background:var(--surface2);border:1.5px solid var(--border2);
+  color:var(--text);font-size:14px;font-weight:600;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.gmail-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+.gmail-icon{width:20px;height:20px}
+.auth-email-inp{margin-bottom:10px}
+.auth-err{color:var(--coral);font-size:12px;margin-top:8px;min-height:18px}
+.auth-spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Topbar user badge */
+#user-badge{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:20px;padding:5px 12px 5px 6px;cursor:pointer;
+  font-size:12px;font-weight:600;color:var(--text);transition:border .2s;
+  position:relative;
+}
+#user-badge:hover{border-color:var(--accent)}
+#user-badge .avatar{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#fff;overflow:hidden;flex-shrink:0;
+}
+#user-badge .avatar img{width:100%;height:100%;object-fit:cover}
+#user-menu{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;padding:6px;min-width:200px;
+  box-shadow:0 8px 32px rgba(0,0,0,.35);z-index:500;display:none;
+}
+#user-menu.open{display:block}
+#user-menu .um-item{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;
+  border-radius:8px;font-size:13px;cursor:pointer;
+  color:var(--text);transition:background .15s;
+}
+#user-menu .um-item:hover{background:var(--surface2)}
+#user-menu .um-divider{height:1px;background:var(--border);margin:4px 0}
+#user-menu .um-email{font-size:11px;color:var(--muted);padding:6px 12px}
+#user-menu .um-mode{font-size:11px;font-weight:700;padding:4px 12px;
+  border-radius:20px;background:var(--surface3);color:var(--muted);display:inline-block;margin:4px 12px 8px}
+
+/* Sync indicator */
+#sync-badge{
+  display:none;align-items:center;gap:5px;
+  font-size:11px;color:var(--muted);
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:20px;padding:3px 10px;
+}
+#sync-badge.syncing{color:var(--accent);border-color:var(--accent)}
+#sync-badge.synced{color:var(--green);display:flex}
+#sync-badge.offline{color:var(--amber);display:flex}
+#sync-badge.error{color:var(--coral);display:flex}
+</style>
 </head>
 <body>
 
 
+
+<!-- ── AUTH OVERLAY ────────────────────────────────────────────────────────── -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">SkillPath</div>
+    <div class="auth-sub">আপনার account এ sign in করুন</div>
+
+    <!-- Tab switcher -->
+    <div style="display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:20px;gap:4px">
+      <button id="tab-signin" onclick="AUTH.switchTab('signin')" style="flex:1;padding:8px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;transition:all .2s">Sign In</button>
+      <button id="tab-signup" onclick="AUTH.switchTab('signup')" style="flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;transition:all .2s">Sign Up</button>
+    </div>
+
+    <!-- Sign In form -->
+    <div id="auth-signin-form">
+      <div class="field" style="margin-bottom:10px">
+        <div class="label">Email</div>
+        <input type="email" id="auth-email-inp" placeholder="your@email.com" onkeydown="if(event.key==='Enter')document.getElementById('auth-pass-inp').focus()">
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <div class="label">Password</div>
+        <input type="password" id="auth-pass-inp" placeholder="Password" onkeydown="if(event.key==='Enter')AUTH.signInEmail()">
+      </div>
+      <button class="btn btn-accent" style="width:100%;padding:11px;font-size:14px" onclick="AUTH.signInEmail()">Sign In →</button>
+      <div style="text-align:center;margin-top:10px">
+        <button onclick="AUTH.forgotPassword()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:DM Sans,sans-serif;text-decoration:underline">Forgot password?</button>
+      </div>
+    </div>
+
+    <!-- Sign Up form -->
+    <div id="auth-signup-form" style="display:none">
+      <div class="field" style="margin-bottom:10px">
+        <div class="label">Email</div>
+        <input type="email" id="auth-email-inp2" placeholder="your@email.com">
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <div class="label">Password (min 6 characters)</div>
+        <input type="password" id="auth-pass-inp2" placeholder="Password">
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <div class="label">Confirm Password</div>
+        <input type="password" id="auth-pass-inp3" placeholder="Confirm password" onkeydown="if(event.key==='Enter')AUTH.signUpEmail()">
+      </div>
+      <button class="btn btn-accent" style="width:100%;padding:11px;font-size:14px" onclick="AUTH.signUpEmail()">Create Account →</button>
+    </div>
+
+    <div class="auth-err" id="auth-err"></div>
+
+    <div class="auth-divider" style="margin-top:16px">অথবা</div>
+    <button class="btn" style="width:100%;font-size:12px;color:var(--muted2)" onclick="AUTH.continueOffline()">⬡ Offline mode (sync ছাড়া)</button>
+  </div>
+</div>
 
 <!-- ── MOBILE MENU BUTTON ─────────────────────────────────────────────────── -->
 <button id="mobile-menu-btn" onclick="toggleSidebar()">&#9776;</button>
@@ -642,7 +816,26 @@ textarea{resize:vertical;min-height:70px}
       <div class="page-title" id="page-title">Dashboard</div>
       <div class="page-sub" id="page-sub"></div>
     </div>
-    <div id="topbar-actions"></div>
+    <div id="topbar-actions">
+      <!-- Sync badge + user badge injected by AUTH on login -->
+      <div id="sync-badge" style="display:none">
+        <span id="sync-icon">↻</span><span id="sync-text">Synced</span>
+      </div>
+      <div id="user-badge" style="display:none" onclick="AUTH.toggleUserMenu()">
+        <div class="avatar" id="user-avatar"><span id="user-initials">?</span></div>
+        <span id="user-name-short">User</span>
+        <div id="user-menu">
+          <div class="um-email" id="um-email-label"></div>
+          <div class="um-mode" id="um-mode-label">● Online</div>
+          <div class="um-divider"></div>
+          <div class="um-item" onclick="AUTH.manualSync();event.stopPropagation()">↻ Sync Now</div>
+          <div class="um-item" onclick="AUTH.exportData();event.stopPropagation()">⬇ Export JSON</div>
+          <div class="um-item" onclick="AUTH.importFromLocal();event.stopPropagation()">⬆ Import from localStorage</div>
+          <div class="um-divider"></div>
+          <div class="um-item" style="color:var(--coral)" onclick="AUTH.signOut();event.stopPropagation()">⬡ Sign Out</div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="content" id="main-content"></div>
 </div>
@@ -1534,31 +1727,47 @@ var renders={
   },
 
   todo: function(){
-    document.getElementById('main-content').innerHTML=`
-    <div class="card">
-      <div class="card-title">To-Do List <span style="font-size:11px;font-weight:400;color:var(--muted)">${getTodayTodos().filter(t=>!t.done).length} remaining</span></div>
-      <div id="todo-list">${renderTodoList()}</div>
-      <div class="divider"></div>
-      <div class="field">
-        <div class="label">Add new task</div>
-        <div class="input-row" style="flex-wrap:wrap;gap:8px">
-          <input type="text" id="todo-inp" placeholder="Task description..." style="flex:2;min-width:180px" onkeydown="if(event.key==='Enter')addTodo()">
-          <select id="todo-type" style="flex:1;min-width:100px">
-            <option value="todo">General</option>
-            <option value="skill">Skill Goal</option>
-            <option value="week">Weekly</option>
-            <option value="month">Monthly</option>
-            <option value="habit">Habit</option>
-          </select>
-          <select id="todo-priority" style="flex:1;min-width:100px">
-            <option value="med">Medium</option>
-            <option value="high">High !</option>
-            <option value="low">Low</option>
-          </select>
-          <button class="btn btn-accent" onclick="addTodo()">+ Add</button>
-        </div>
-      </div>
-    </div>`;
+    // Build next-7-days date tabs
+    var dateTabHtml='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px" id="todo-date-tabs">';
+    var today_d=today();
+    if(!window._todoActiveDate)window._todoActiveDate=today_d;
+    for(var di=0;di<7;di++){
+      var dt=new Date(); dt.setDate(dt.getDate()+di);
+      var ds=dt.toISOString().slice(0,10);
+      var dayN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()];
+      var label=di===0?'Today':di===1?'Tomorrow':dayN;
+      var cnt=(DB.dailyTodos&&DB.dailyTodos[ds]||[]).filter(function(t){return !t.done;}).length;
+      var isAct=ds===window._todoActiveDate;
+      dateTabHtml+='<button onclick="switchTodoDate(\''+ds+'\')" style="padding:7px 14px;border-radius:20px;border:1.5px solid '+(isAct?'var(--accent)':'var(--border2)')+';background:'+(isAct?'var(--accent-glow)':'var(--surface2)')+';color:'+(isAct?'var(--accent)':'var(--muted)')+';font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all .18s">'+label+(cnt>0?' <span style="opacity:.8">\u2022'+cnt+'</span>':'')+'</button>';
+    }
+    dateTabHtml+='</div>';
+    var activeDate=window._todoActiveDate||today_d;
+    var activeTodos=(DB.dailyTodos&&DB.dailyTodos[activeDate])||[];
+    var remaining=activeTodos.filter(function(t){return !t.done;}).length;
+    document.getElementById('main-content').innerHTML=
+      '<div class="card">'
+      +dateTabHtml
+      +'<div class="card-title">To-Do \u2014 <span style="color:var(--accent)">'+(activeDate===today_d?'Today':activeDate)+'</span>'
+      +' <span style="font-size:11px;font-weight:400;color:var(--muted)">'+remaining+' remaining</span></div>'
+      +'<div id="todo-list">'+renderTodoList()+'</div>'
+      +'<div class="divider"></div>'
+      +'<div class="field"><div class="label">Add task</div>'
+      +'<div class="input-row" style="flex-wrap:wrap;gap:8px">'
+      +'<input type="text" id="todo-inp" placeholder="Task description..." style="flex:2;min-width:180px" onkeydown="if(event.key===\'Enter\')addTodo()">'
+      +'<select id="todo-type" style="flex:1;min-width:100px">'
+      +'<option value="todo">General</option>'
+      +'<option value="skill">Skill Goal</option>'
+      +'<option value="week">Weekly</option>'
+      +'<option value="month">Monthly</option>'
+      +'<option value="habit">Habit</option>'
+      +'</select>'
+      +'<select id="todo-priority" style="flex:1;min-width:100px">'
+      +'<option value="med">Medium</option>'
+      +'<option value="high">High !</option>'
+      +'<option value="low">Low</option>'
+      +'</select>'
+      +'<button class="btn btn-accent" onclick="addTodo()">+ Add</button>'
+      +'</div></div></div>';
   },
 
   deadlines: function(){
@@ -2104,10 +2313,14 @@ function renderTodoList(){
 }
 
 function getTodayTodos(){
-  var d=today();
+  var d=window._todoActiveDate||today();
   if(!DB.dailyTodos)DB.dailyTodos={};
   if(!DB.dailyTodos[d])DB.dailyTodos[d]=[];
   return DB.dailyTodos[d];
+}
+function switchTodoDate(ds){
+  window._todoActiveDate=ds;
+  renders.todo();
 }
 function getDateTodos(d){
   if(!DB.dailyTodos)return [];
@@ -2121,7 +2334,7 @@ function addTodo(){
   save();var el=document.getElementById('todo-list');if(el)el.innerHTML=renderTodoList();
 }
 function toggleTodo(id){var todos=getTodayTodos();var t=todos.find(x=>x.id===id);if(t)t.done=!t.done;save();var el=document.getElementById('todo-list');if(el)el.innerHTML=renderTodoList();}
-function deleteTodo(id){var d=today();if(DB.dailyTodos&&DB.dailyTodos[d])DB.dailyTodos[d]=DB.dailyTodos[d].filter(x=>x.id!==id);save();var el=document.getElementById('todo-list');if(el)el.innerHTML=renderTodoList();}
+function deleteTodo(id){var d=window._todoActiveDate||today();if(DB.dailyTodos&&DB.dailyTodos[d])DB.dailyTodos[d]=DB.dailyTodos[d].filter(x=>x.id!==id);save();var el=document.getElementById('todo-list');if(el)el.innerHTML=renderTodoList();}
 
 function renderDeadlines(list){
   if(!list.length)return '<div class="empty">No deadlines.</div>';
@@ -2688,9 +2901,370 @@ function startSliderAuto(){
   }
 }
 
+// ============ SUPABASE + AUTH SYSTEM ============
+// ─────────────────────────────────────────────────────────────────────────────
+//  SETUP STEPS (একবার করলেই হবে):
+//
+//  ১. https://supabase.com → New Project তৈরি করুন
+//  ২. নিচে SUPABASE_URL এবং SUPABASE_ANON_KEY বসান
+//     (Project Settings → API → Project URL & anon public key)
+//  ৩. Dashboard → Authentication → Providers → Google Enable করুন
+//  ৪. SQL Editor এ নিচের SQL run করুন:
+//
+//     create table if not exists skillpath_data (
+//       id uuid primary key default gen_random_uuid(),
+//       user_id uuid references auth.users(id) on delete cascade not null unique,
+//       data jsonb not null default '{}',
+//       updated_at timestamptz default now()
+//     );
+//     alter table skillpath_data enable row level security;
+//     create policy "Users own data" on skillpath_data
+//       for all using (auth.uid() = user_id)
+//       with check (auth.uid() = user_id);
+//
+//  ৫. Authentication → URL Configuration → Redirect URLs এ আপনার domain যোগ করুন
+// ─────────────────────────────────────────────────────────────────────────────
+
+var SUPABASE_URL = 'https://vqeksnimzpbceaaamitc.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZWtzbmltenBiY2VhYWFtaXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzOTIxMzcsImV4cCI6MjA5Mzk2ODEzN30.1U0mD6VM_YvM1vZgOV_AwZZ_3Fgj-EMNItko6k3GHcw';
+
+var _sb = null;
+
+async function _initSupabase(){
+  if(_sb) return _sb;
+  try {
+    await Promise.race([
+      new Promise(function(res,rej){
+        if(window.supabase){res();return;}
+        var s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+        s.onload=res; s.onerror=rej;
+        document.head.appendChild(s);
+      }),
+      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('timeout')); }, 5000); })
+    ]);
+    _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return _sb;
+  } catch(e){ console.warn('Supabase SDK failed:',e); return null; }
+}
+
+var AUTH = (function(){
+  var _mode='offline', _user=null, _syncTimer=null;
+
+  function _setErr(msg){ var el=document.getElementById('auth-err'); if(el) el.textContent=msg||''; }
+  function _showOverlay(){ var el=document.getElementById('auth-overlay'); if(el) el.classList.remove('hidden'); }
+  function _hideOverlay(){ var el=document.getElementById('auth-overlay'); if(el) el.classList.add('hidden'); }
+
+  function _setSyncStatus(st){
+    var b=document.getElementById('sync-badge');
+    var icon=document.getElementById('sync-icon');
+    var text=document.getElementById('sync-text');
+    if(!b) return;
+    b.className=st; b.style.display='flex';
+    if(st==='syncing'){icon.textContent='↻';text.textContent='Syncing...';}
+    else if(st==='synced'){icon.textContent='✓';text.textContent='Synced';}
+    else if(st==='offline'){icon.textContent='○';text.textContent='Offline';}
+    else if(st==='error'){icon.textContent='⚠';text.textContent='Sync error';}
+  }
+
+  function _updateUserBadge(){
+    var badge=document.getElementById('user-badge');
+    var syncBadge=document.getElementById('sync-badge');
+    if(!badge) return;
+    badge.style.display='flex';
+    if(_mode==='offline'){
+      syncBadge.style.display='flex'; syncBadge.className='offline';
+      document.getElementById('sync-icon').textContent='○';
+      document.getElementById('sync-text').textContent='Offline';
+      document.getElementById('user-initials').textContent='?';
+      document.getElementById('user-name-short').textContent='Offline';
+      document.getElementById('um-email-label').textContent='Not signed in';
+      document.getElementById('um-mode-label').textContent='● Offline Mode';
+      return;
+    }
+    if(!_user) return;
+    var email=_user.email||'';
+    var meta=_user.user_metadata||{};
+    var name=meta.full_name||meta.name||email.split('@')[0]||'User';
+    var initials=name.split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase()||'U';
+    var avatar=meta.avatar_url||'';
+    document.getElementById('user-name-short').textContent=name.split(' ')[0];
+    document.getElementById('um-email-label').textContent=email;
+    document.getElementById('um-mode-label').textContent='● Online';
+    var avatarEl=document.getElementById('user-avatar');
+    if(avatar){ avatarEl.innerHTML='<img src="'+avatar+'" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">'; }
+    else { document.getElementById('user-initials').textContent=initials; }
+  }
+
+  async function _syncToCloud(showStatus){
+    if(_mode!=='online'||!_user||!_sb) return;
+    if(showStatus) _setSyncStatus('syncing');
+    try {
+      var res=await _sb.from('skillpath_data').upsert(
+        {user_id:_user.id, data:DB, updated_at:new Date().toISOString()},
+        {onConflict:'user_id'}
+      );
+      if(res.error) throw res.error;
+      if(showStatus) _setSyncStatus('synced');
+    } catch(e){ console.warn('Sync error:',e); if(showStatus) _setSyncStatus('error'); }
+  }
+
+  async function _loadFromCloud(){
+    if(!_sb||!_user) return false;
+    try {
+      var res=await _sb.from('skillpath_data').select('data').eq('user_id',_user.id).single();
+      if(res.error||!res.data) return false;
+      if(res.data.data&&typeof res.data.data==='object'){
+        DB=res.data.data; _ensureDBFields();
+        try{localStorage.setItem('skillpath_v3_cloud_'+_user.id,JSON.stringify(DB));}catch(e){}
+        return true;
+      }
+      return false;
+    } catch(e){ console.warn('Load cloud error:',e); return false; }
+  }
+
+  function _startAutoSync(){
+    if(_syncTimer) clearInterval(_syncTimer);
+    if(_mode!=='online') return;
+    _syncTimer=setInterval(function(){ _syncToCloud(false); }, 60000);
+  }
+
+  async function _onSignedIn(user){
+    _user=user; _mode='online';
+    _hideOverlay(); _setSyncStatus('syncing');
+
+    // Check if there's unsaved offline data (added while not logged in)
+    var localData=null;
+    try{
+      var raw=localStorage.getItem('skillpath_v3')||localStorage.getItem('skillpath_v3_bak');
+      if(raw) localData=JSON.parse(raw);
+    }catch(e){}
+    var hasOfflineData=localData&&(
+      (localData.sessions&&localData.sessions.length>0)||
+      (localData.skills&&localData.skills.length>0)
+    );
+
+    var cloudLoaded=await _loadFromCloud();
+
+    if(!cloudLoaded){
+      // New account — import offline data if any
+      if(hasOfflineData){
+        var doImport=confirm('☁ আপনার device এ SkillPath data পাওয়া গেছে!\n\nSkills: '+(localData.skills||[]).length+', Sessions: '+(localData.sessions||[]).length+'\n\nCloud account এ import করবেন?');
+        if(doImport){DB=localData;_ensureDBFields();}
+      }
+      await _syncToCloud(true);
+    } else {
+      // Cloud data loaded — also check if offline has NEW data not in cloud
+      if(hasOfflineData){
+        var cloudSessions=(DB.sessions||[]).map(function(s){return s.id;});
+        var newSessions=(localData.sessions||[]).filter(function(s){return cloudSessions.indexOf(s.id)===-1;});
+        var cloudSkills=(DB.skills||[]).map(function(s){return s.id;});
+        var newSkills=(localData.skills||[]).filter(function(s){return cloudSkills.indexOf(s.id)===-1;});
+
+        if(newSessions.length>0||newSkills.length>0){
+          var doMerge=confirm('Offline এ কিছু নতুন data আছে যা cloud এ নেই:\n\nনতুন Sessions: '+newSessions.length+', নতুন Skills: '+newSkills.length+'\n\nCloud data তে merge করবেন?');
+          if(doMerge){
+            // Merge: add new sessions and skills to cloud data
+            newSessions.forEach(function(s){ DB.sessions.push(s); });
+            newSkills.forEach(function(s){ DB.skills.push(s); });
+            _ensureDBFields();
+            await _syncToCloud(true);
+          } else {
+            _setSyncStatus('synced');
+          }
+        } else {
+          _setSyncStatus('synced');
+        }
+      } else {
+        _setSyncStatus('synced');
+      }
+    }
+
+    _updateUserBadge(); _startAutoSync();
+
+    // Patch save() to also sync to cloud on every save
+    var _origSave=save;
+    window.save=function(){ _origSave(); _syncToCloud(false); };
+
+    appStart();
+  }
+
+  return {
+    init: async function(){
+      loadTheme();
+
+      // Always show overlay first so buttons are always clickable
+      // (overlay hides itself after successful login or offline choice)
+      var supabaseConfigured = SUPABASE_URL && SUPABASE_URL !== 'YOUR_SUPABASE_URL';
+
+      if(!supabaseConfigured){
+        // No Supabase configured — go offline immediately, no overlay needed
+        AUTH.continueOffline();
+        return;
+      }
+
+      // Show overlay immediately — don't wait for SDK
+      _showOverlay();
+
+      // Load SDK in background
+      _sb = await _initSupabase();
+
+      if(!_sb){
+        // SDK failed to load — still show overlay, buttons will show error
+        console.warn('Supabase SDK could not load. Login unavailable.');
+        document.getElementById('auth-err') && (document.getElementById('auth-err').textContent='Internet connection needed to sign in.');
+        return;
+      }
+
+      // Check existing session (returning user / page reload)
+      try {
+        var sessRes=await _sb.auth.getSession();
+        if(sessRes.data&&sessRes.data.session&&sessRes.data.session.user){
+          await _onSignedIn(sessRes.data.session.user); return;
+        }
+      } catch(e){ console.warn('Session check error:',e); }
+
+      // Listen for OAuth redirect callbacks
+      _sb.auth.onAuthStateChange(async function(event,session){
+        if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&session){
+          await _onSignedIn(session.user);
+        } else if(event==='SIGNED_OUT'){ _mode='offline'; _user=null; _showOverlay(); }
+      });
+    },
+
+    switchTab: function(tab){
+      var signin=document.getElementById('auth-signin-form');
+      var signup=document.getElementById('auth-signup-form');
+      var tsi=document.getElementById('tab-signin');
+      var tsu=document.getElementById('tab-signup');
+      if(!signin||!signup) return;
+      if(tab==='signin'){
+        signin.style.display=''; signup.style.display='none';
+        tsi.style.background='var(--accent)'; tsi.style.color='#fff';
+        tsu.style.background='transparent'; tsu.style.color='var(--muted)';
+      } else {
+        signin.style.display='none'; signup.style.display='';
+        tsu.style.background='var(--accent)'; tsu.style.color='#fff';
+        tsi.style.background='transparent'; tsi.style.color='var(--muted)';
+      }
+      _setErr('');
+    },
+
+    forgotPassword: async function(){
+      var email=(document.getElementById('auth-email-inp')||{}).value||'';
+      if(!email){ _setErr('আগে email লিখুন, তারপর "Forgot password?" click করুন।'); return; }
+      if(!_sb){ return; }
+      _setErr('');
+      try {
+        var res=await _sb.auth.resetPasswordForEmail(email, {redirectTo: window.location.href});
+        if(res.error){ _setErr(res.error.message); return; }
+        _setErr('✓ Password reset link পাঠানো হয়েছে। Email check করুন।');
+      } catch(e){ _setErr(e.message||'Error'); }
+    },
+
+    signInGoogle: async function(){
+      if(!_sb){alert('Supabase configured নেই!');return;}
+      _setErr('');
+      try {
+        var res=await _sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+        if(res.error) _setErr(res.error.message);
+      } catch(e){ _setErr(e.message||'Error'); }
+    },
+
+    signInEmail: async function(){
+      if(!_sb){
+        // SDK not yet loaded — try loading again
+        _sb=await _initSupabase();
+        if(!_sb){ _setErr('Connection error — internet check করুন এবং page reload করুন।'); return; }
+      }
+      var email=(document.getElementById('auth-email-inp')||{}).value||'';
+      var pass=(document.getElementById('auth-pass-inp')||{}).value||'';
+      if(!email||!pass){_setErr('Email ও password দিন!');return;}
+      _setErr('');
+      try {
+        var res=await _sb.auth.signInWithPassword({email:email,password:pass});
+        if(res.error){_setErr(res.error.message);return;}
+        if(res.data&&res.data.user) await _onSignedIn(res.data.user);
+      } catch(e){ _setErr(e.message||'Sign in error'); }
+    },
+
+    signUpEmail: async function(){
+      if(!_sb){alert('Supabase configured নেই!');return;}
+      var email=(document.getElementById('auth-email-inp2')||{}).value||'';
+      var pass=(document.getElementById('auth-pass-inp2')||{}).value||'';
+      var pass2=(document.getElementById('auth-pass-inp3')||{}).value||'';
+      if(!email||!pass){_setErr('Email ও password দিন!');return;}
+      if(pass.length<6){_setErr('Password কমপক্ষে 6 characters হতে হবে!');return;}
+      if(pass!==pass2){_setErr('দুটো password মিলছে না!');return;}
+      _setErr('');
+      try {
+        var res=await _sb.auth.signUp({email:email,password:pass});
+        if(res.error){_setErr(res.error.message);return;}
+        if(res.data&&res.data.user&&res.data.session){ await _onSignedIn(res.data.user); }
+        else { _setErr('✓ Confirmation email পাঠানো হয়েছে। Inbox check করুন, তারপর sign in করুন।'); AUTH.switchTab('signin'); }
+      } catch(e){ _setErr(e.message||'Sign up error'); }
+    },
+
+    continueOffline: function(){
+      _mode='offline'; _user=null;
+      if(_syncTimer) clearInterval(_syncTimer);
+      _hideOverlay(); _updateUserBadge(); appStart();
+    },
+
+    signOut: async function(){
+      if(_syncTimer) clearInterval(_syncTimer);
+      // Final sync before leaving
+      if(_mode==='online'){
+        try{ await _syncToCloud(false); }catch(e){}
+      }
+      // Sign out from Supabase — clears session cookie/token
+      if(_sb){
+        try{ await _sb.auth.signOut({scope:'local'}); }catch(e){}
+      }
+      // Clear any cached session from localStorage
+      try{
+        Object.keys(localStorage).forEach(function(k){
+          if(k.startsWith('sb-')||k.indexOf('supabase')!==-1) localStorage.removeItem(k);
+        });
+      }catch(e){}
+      // Hard reload to clear all JS state
+      window.location.href = window.location.href.split('?')[0].split('#')[0];
+    },
+
+    manualSync: async function(){
+      if(_mode!=='online'){notify('Offline mode — sync unavailable');return;}
+      notify('↻ Syncing...');
+      await _syncToCloud(true);
+      notify('✓ Sync complete!');
+    },
+
+    exportData: function(){ exportData(); },
+
+    importFromLocal: function(){
+      var raw=null;
+      try{raw=localStorage.getItem('skillpath_v3')||localStorage.getItem('skillpath_v3_bak');}catch(e){}
+      if(!raw){notify('localStorage এ কোনো data নেই।');return;}
+      if(!confirm('localStorage থেকে data import করবেন? Current cloud data replace হবে।')) return;
+      try{var d=JSON.parse(raw);DB=d;_ensureDBFields();save();notify('✓ Local data imported!');nav(currentPage);}
+      catch(e){notify('Import failed: '+e.message);}
+    },
+
+    toggleUserMenu: function(){
+      var m=document.getElementById('user-menu');
+      if(m) m.classList.toggle('open');
+      setTimeout(function(){
+        document.addEventListener('click',function _c(e){
+          var b=document.getElementById('user-badge');
+          var m2=document.getElementById('user-menu');
+          if(m2&&b&&!b.contains(e.target)){m2.classList.remove('open');document.removeEventListener('click',_c);}
+        });
+      },10);
+    }
+  };
+})();
+
 // ============ INIT ============
-loadTheme();
-appStart();
+AUTH.init();
 
 </script>
 </body>
